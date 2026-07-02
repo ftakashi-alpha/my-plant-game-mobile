@@ -1079,66 +1079,68 @@ export default function App() {
       : "大きな被害";
 
   return (
-    <div className={"mobile-tab-" + mobileTab} style={styles.app}>
-      {React.createElement("style", null, `
-        /* mobile-bottom-tabs-safe-css */
-        .mobile-bottom-nav-safe,
-        .mobile-spacer-safe {
+    <div className={`mobile-tab-${mobileTab}`} style={styles.app}>
+      <style>{`
+        /* mobile-bottom-tab-css */
+        .mobile-bottom-nav {
           display: none;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 760px) {
           .mobile-section {
-            display: none !important;
+            display: none;
           }
 
           .mobile-tab-field .mobile-section-field {
-            display: block !important;
+            display: block;
           }
 
           .mobile-tab-tools .mobile-section-tools {
-            display: block !important;
+            display: block;
           }
 
           .mobile-tab-log .mobile-section-log {
-            display: block !important;
+            display: block;
           }
 
-          .mobile-bottom-nav-safe {
-            display: grid !important;
+          .mobile-bottom-nav {
+            display: grid;
             grid-template-columns: repeat(3, 1fr);
             position: fixed;
             left: 8px;
             right: 8px;
             bottom: 8px;
-            z-index: 999;
+            z-index: 100;
             background: #ffffff;
             border: 1px solid #cbd5e1;
             border-radius: 18px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
             overflow: hidden;
           }
 
-          .mobile-bottom-nav-safe button {
+          .mobile-bottom-nav button {
             border: 0;
-            background: #ffffff;
-            padding: 11px 6px;
+            background: white;
+            padding: 10px 6px;
             font-size: 13px;
             font-weight: 800;
             color: #334155;
           }
 
-          .mobile-bottom-nav-safe button.active {
+          .mobile-bottom-nav button.active {
             background: #14532d;
-            color: #ffffff;
+            color: white;
           }
 
-          .mobile-spacer-safe {
-            display: block;
-            height: 78px;
+          .mobile-spacer {
+            height: 74px;
+          }
+
+          body {
+            overscroll-behavior: contain;
           }
         }
-      `)}
+      `}</style>
       <div style={styles.mobileStatusBar}>
         <div>
           <b>ターン {turn}/{MAX_TURN}</b> / 資金 {money}
@@ -1448,40 +1450,6 @@ export default function App() {
           ))}
         </ul>
       </section>
-    
-      {React.createElement("div", { className: "mobile-spacer-safe" })}
-
-      {React.createElement(
-        "nav",
-        { className: "mobile-bottom-nav-safe" },
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "field" ? "active" : "",
-            onClick: () => setMobileTab("field"),
-          },
-          "圃場"
-        ),
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "tools" ? "active" : "",
-            onClick: () => setMobileTab("tools"),
-          },
-          "防除"
-        ),
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "log" ? "active" : "",
-            onClick: () => setMobileTab("log"),
-          },
-          "ログ"
-        )
-      )}
     </div>
   );
 }
@@ -1553,6 +1521,7 @@ const styles = {
     minHeight: "100vh",
     background: "#f3f7f0",
     padding: "clamp(8px, 2.5vw, 18px)",
+    paddingBottom: 92,
     fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     color: "#1f2933",
   },
@@ -1726,8 +1695,6 @@ const styles = {
     paddingLeft: 20,
   },
 };
-
-
 
 
 

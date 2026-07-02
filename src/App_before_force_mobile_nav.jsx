@@ -1087,7 +1087,7 @@ export default function App() {
           display: none;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 760px) {
           .mobile-section {
             display: none !important;
           }
@@ -1448,40 +1448,6 @@ export default function App() {
           ))}
         </ul>
       </section>
-    
-      {React.createElement("div", { className: "mobile-spacer-safe" })}
-
-      {React.createElement(
-        "nav",
-        { className: "mobile-bottom-nav-safe" },
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "field" ? "active" : "",
-            onClick: () => setMobileTab("field"),
-          },
-          "圃場"
-        ),
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "tools" ? "active" : "",
-            onClick: () => setMobileTab("tools"),
-          },
-          "防除"
-        ),
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "log" ? "active" : "",
-            onClick: () => setMobileTab("log"),
-          },
-          "ログ"
-        )
-      )}
     </div>
   );
 }
@@ -1726,8 +1692,6 @@ const styles = {
     paddingLeft: 20,
   },
 };
-
-
 
 
 

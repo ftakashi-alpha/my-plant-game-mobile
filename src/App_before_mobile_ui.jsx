@@ -409,7 +409,6 @@ export default function App() {
   const [modeKey, setModeKey] = useState("comprehensive");
   const targetMode = "selected";
   const [education, setEducation] = useState(true);
-  const [mobileTab, setMobileTab] = useState("field");
 
   const [research, setResearch] = useState({
     risk: 1.0,
@@ -1079,75 +1078,7 @@ export default function App() {
       : "大きな被害";
 
   return (
-    <div className={"mobile-tab-" + mobileTab} style={styles.app}>
-      {React.createElement("style", null, `
-        /* mobile-bottom-tabs-safe-css */
-        .mobile-bottom-nav-safe,
-        .mobile-spacer-safe {
-          display: none;
-        }
-
-        @media (max-width: 900px) {
-          .mobile-section {
-            display: none !important;
-          }
-
-          .mobile-tab-field .mobile-section-field {
-            display: block !important;
-          }
-
-          .mobile-tab-tools .mobile-section-tools {
-            display: block !important;
-          }
-
-          .mobile-tab-log .mobile-section-log {
-            display: block !important;
-          }
-
-          .mobile-bottom-nav-safe {
-            display: grid !important;
-            grid-template-columns: repeat(3, 1fr);
-            position: fixed;
-            left: 8px;
-            right: 8px;
-            bottom: 8px;
-            z-index: 999;
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 18px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.22);
-            overflow: hidden;
-          }
-
-          .mobile-bottom-nav-safe button {
-            border: 0;
-            background: #ffffff;
-            padding: 11px 6px;
-            font-size: 13px;
-            font-weight: 800;
-            color: #334155;
-          }
-
-          .mobile-bottom-nav-safe button.active {
-            background: #14532d;
-            color: #ffffff;
-          }
-
-          .mobile-spacer-safe {
-            display: block;
-            height: 78px;
-          }
-        }
-      `)}
-      <div style={styles.mobileStatusBar}>
-        <div>
-          <b>ターン {turn}/{MAX_TURN}</b> / 資金 {money}
-        </div>
-        <div style={{ fontSize: 12 }}>
-          選択中：{tool.mark} {tool.name} / 
-          {tool.range === "single" ? "単一区画" : "中心＋周囲"}
-        </div>
-      </div>
+    <div style={styles.app}>
       <section style={styles.card}>
         <h1 style={styles.h1}>植物病害防除ゲーム：診断・範囲表示整理版</h1>
         <p style={styles.text}>
@@ -1268,10 +1199,10 @@ export default function App() {
       )}
 
       <div style={styles.twoColumn}>
-        <section className="mobile-section mobile-section-field" style={styles.card}>
+        <section style={styles.card}>
           <h2 style={styles.h2}>圃場マップ</h2>
           <p style={styles.text}>
-            防除手段を選択後、圃場区画をクリックまたはタップすると防除が実施されます。範囲型はクリック/タップ区画を中心に最大9区画へ作用します。単一区画型はその区画のみに作用します。青破線＝影響予定区画、緑枠・継続＝防除効果が継続中の区画です。
+            防除手段を選択後、圃場区画をクリックすると防除が実施されます。範囲型はクリック区画を中心に最大9区画へ作用します。単一区画型はクリック区画のみに作用します。青破線＝影響予定区画、緑枠・継続＝防除効果が継続中の区画です。
           </p>
 
           <div style={styles.buttonLine}><button style={styles.button} onClick={nextTurn} disabled={gameOver}>1ターン進める</button>
@@ -1378,7 +1309,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="mobile-section mobile-section-tools" style={styles.card}>
+        <section style={styles.card}>
           <h2 style={styles.h2}>防除手段</h2>
           <div style={styles.selectedToolBox}>
             <div style={{ fontSize: 13, color: "#52606d", marginBottom: 4 }}>
@@ -1424,11 +1355,11 @@ export default function App() {
       </div>
 
       <div style={styles.twoColumn}>
-        <section className="mobile-section mobile-section-log" style={styles.card}>
-          <h2 style={styles.h2}>タップ/カーソル区画の詳細</h2>
+        <section style={styles.card}>
+          <h2 style={styles.h2}>カーソル区画の詳細</h2>
           {!hoveredPlot ? (
             <p style={styles.text}>
-              PCでは区画にカーソルを合わせる、スマホ・タブレットでは区画をタップすると、この欄に区画情報が表示されます。
+              区画にカーソルを合わせる、または区画をクリックすると、この欄に区画情報が表示されます。
             </p>
           ) : (
             <HoverDetail
@@ -1440,7 +1371,7 @@ export default function App() {
         </section>
       </div>
 
-      <section className="mobile-section mobile-section-log" style={styles.card}>
+      <section style={styles.card}>
         <h2 style={styles.h2}>メッセージログ</h2>
         <ul style={styles.log}>
           {log.map((l, i) => (
@@ -1448,40 +1379,6 @@ export default function App() {
           ))}
         </ul>
       </section>
-    
-      {React.createElement("div", { className: "mobile-spacer-safe" })}
-
-      {React.createElement(
-        "nav",
-        { className: "mobile-bottom-nav-safe" },
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "field" ? "active" : "",
-            onClick: () => setMobileTab("field"),
-          },
-          "圃場"
-        ),
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "tools" ? "active" : "",
-            onClick: () => setMobileTab("tools"),
-          },
-          "防除"
-        ),
-        React.createElement(
-          "button",
-          {
-            type: "button",
-            className: mobileTab === "log" ? "active" : "",
-            onClick: () => setMobileTab("log"),
-          },
-          "ログ"
-        )
-      )}
     </div>
   );
 }
@@ -1533,7 +1430,7 @@ function HoverDetail({ plot, riskInfo, baseRisk }) {
 function Control({ label, children }) {
   return (
     <div>
-      <label style={{ fontSize: "clamp(10px, 2.7vw, 12px)", color: "#52606d" }}>{label}</label>
+      <label style={{ fontSize: 12, color: "#52606d" }}>{label}</label>
       {children}
     </div>
   );
@@ -1543,7 +1440,7 @@ function Metric({ title, value }) {
   return (
     <div style={styles.metric}>
       <div style={{ fontSize: 20, fontWeight: 800 }}>{value}</div>
-      <div style={{ fontSize: "clamp(10px, 2.7vw, 12px)", color: "#52606d" }}>{title}</div>
+      <div style={{ fontSize: 12, color: "#52606d" }}>{title}</div>
     </div>
   );
 }
@@ -1552,26 +1449,9 @@ const styles = {
   app: {
     minHeight: "100vh",
     background: "#f3f7f0",
-    padding: "clamp(8px, 2.5vw, 18px)",
+    padding: 18,
     fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     color: "#1f2933",
-  },
-  mobileStatusBar: {
-    position: "sticky",
-    top: 0,
-    zIndex: 30,
-    background: "#14532d",
-    color: "white",
-    borderRadius: 14,
-    padding: "10px 12px",
-    marginBottom: 12,
-    boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 8,
-    alignItems: "center",
-    flexWrap: "wrap",
-    fontSize: 13,
   },
   card: {
     background: "white",
@@ -1584,7 +1464,7 @@ const styles = {
   h1: { marginTop: 0, marginBottom: 8, fontSize: 26 },
   h2: { marginTop: 0, marginBottom: 10, fontSize: 18 },
   text: { fontSize: 14, lineHeight: 1.6, color: "#3f4d5a" },
-  smallText: { fontSize: "clamp(10px, 2.7vw, 12px)", lineHeight: 1.5, color: "#52606d" },
+  smallText: { fontSize: 12, lineHeight: 1.5, color: "#52606d" },
   lesson: {
     whiteSpace: "pre-wrap",
     fontFamily: "inherit",
@@ -1593,7 +1473,7 @@ const styles = {
   },
   twoColumn: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(330px, 1fr))",
     gap: 14,
   },
   controlGrid: {
@@ -1628,8 +1508,7 @@ const styles = {
   button: {
     border: 0,
     borderRadius: 14,
-    padding: "11px 14px",
-    minHeight: 44,
+    padding: "10px 12px",
     background: "#2f855a",
     color: "white",
     cursor: "pointer",
@@ -1638,8 +1517,7 @@ const styles = {
   buttonRed: {
     border: 0,
     borderRadius: 14,
-    padding: "11px 14px",
-    minHeight: 44,
+    padding: "10px 12px",
     background: "#c53030",
     color: "white",
     cursor: "pointer",
@@ -1648,8 +1526,7 @@ const styles = {
   buttonGray: {
     border: 0,
     borderRadius: 14,
-    padding: "11px 14px",
-    minHeight: 44,
+    padding: "10px 12px",
     background: "#718096",
     color: "white",
     cursor: "pointer",
@@ -1657,38 +1534,31 @@ const styles = {
   },
   fieldGrid: {
     display: "grid",
-    gridTemplateColumns: `repeat(${SIZE}, minmax(52px, 1fr))`,
-    gap: 5,
-    width: "100%",
-    maxWidth: 560,
-    margin: "0 auto",
+    gridTemplateColumns: `repeat(${SIZE}, 1fr)`,
+    gap: 6,
   },
   plot: {
-    minHeight: "clamp(64px, 13vw, 88px)",
+    minHeight: 86,
     borderRadius: 14,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "column",
-    fontSize: "clamp(10px, 2.7vw, 12px)",
+    fontSize: 12,
     fontWeight: 700,
     cursor: "pointer",
-    touchAction: "manipulation",
-    userSelect: "none",
     transition: "0.12s",
   },
   defenseGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
     gap: 8,
   },
   toolButton: {
-    padding: 10,
-    minHeight: 72,
+    padding: 8,
     borderRadius: 12,
     cursor: "pointer",
     textAlign: "left",
-    touchAction: "manipulation",
   },
   itemButton: {
     padding: 8,
@@ -1716,7 +1586,7 @@ const styles = {
     background: "#fff7ed",
     border: "1px solid #fed7aa",
     color: "#9a3412",
-    fontSize: "clamp(10px, 2.7vw, 12px)",
+    fontSize: 12,
     lineHeight: 1.5,
   },
   log: {
@@ -1726,10 +1596,6 @@ const styles = {
     paddingLeft: 20,
   },
 };
-
-
-
-
 
 
 
