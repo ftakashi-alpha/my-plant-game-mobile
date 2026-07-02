@@ -410,6 +410,7 @@ export default function App() {
   const targetMode = "selected";
   const [education, setEducation] = useState(true);
   const [mobileTab, setMobileTab] = useState("field");
+  const [interactionMode, setInteractionMode] = useState("inspect");
 
   const [research, setResearch] = useState({
     risk: 1.0,
@@ -621,7 +622,12 @@ export default function App() {
     setHoveredId(id);
     setSelected([id]);
 
-    applySelectedTool(toolKey, id);
+    if (interactionMode === "apply") {
+      applySelectedTool(toolKey, id);
+      setInteractionMode("inspect");
+    } else {
+      addLog(`区画${id + 1}の情報を表示しました。防除は実施していません。`);
+    }
   }
 
   function selectAll() {
@@ -1144,7 +1150,7 @@ export default function App() {
           <b>ターン {turn}/{MAX_TURN}</b> / 資金 {money}
         </div>
         <div style={{ fontSize: 12 }}>
-          選択中：{tool.mark} {tool.name} / 
+          {interactionMode === "apply" ? "防除実施中" : "情報確認中"} / 選択中：{tool.mark} {tool.name} / 
           {tool.range === "single" ? "単一区画" : "中心＋周囲"}
         </div>
       </div>
@@ -1270,6 +1276,47 @@ export default function App() {
       <div style={styles.twoColumn}>
         <section className="mobile-section mobile-section-field" style={styles.card}>
           <h2 style={styles.h2}>圃場マップ</h2>
+          {React.createElement(
+            "div",
+            {
+              className: "interaction-mode-banner-safe",
+              style:
+                interactionMode === "apply"
+                  ? {
+                      background: "#fff7ed",
+                      border: "2px solid #f97316",
+                      color: "#9a3412",
+                      borderRadius: 14,
+                      padding: 12,
+                      marginBottom: 12,
+                      boxShadow: "0 4px 12px rgba(249,115,22,0.18)",
+                    }
+                  : {
+                      background: "#eff6ff",
+                      border: "2px solid #3b82f6",
+                      color: "#1e3a8a",
+                      borderRadius: 14,
+                      padding: 12,
+                      marginBottom: 12,
+                      boxShadow: "0 4px 12px rgba(59,130,246,0.16)",
+                    },
+            },
+            React.createElement(
+              "div",
+              { style: { fontSize: 16, fontWeight: 900, marginBottom: 4 } },
+              interactionMode === "apply"
+                ? "防除実施モード"
+                : "情報確認モード"
+            ),
+            React.createElement(
+              "div",
+              { style: { fontSize: 13, lineHeight: 1.5 } },
+              interactionMode === "apply"
+                ? `区画をクリック/タップすると「${tool.mark} ${tool.name}」を実施します。`
+                : "区画をクリック/タップしても防除は実施されません。区画情報だけを表示します。"
+            )
+          )}
+
           <p style={styles.text}>
             防除手段を選択後、圃場区画をクリックまたはタップすると防除が実施されます。範囲型はクリック/タップ区画を中心に最大9区画へ作用します。単一区画型はその区画のみに作用します。青破線＝影響予定区画、緑枠・継続＝防除効果が継続中の区画です。
           </p>
@@ -1380,6 +1427,92 @@ export default function App() {
 
         <section className="mobile-section mobile-section-tools" style={styles.card}>
           <h2 style={styles.h2}>防除手段</h2>
+          {React.createElement(
+            "div",
+            {
+              className: "interaction-mode-switch-safe",
+              style: {
+                background: "#f8fafc",
+                border: "1px solid #cbd5e1",
+                borderRadius: 14,
+                padding: 12,
+                marginBottom: 12,
+              },
+            },
+            React.createElement(
+              "div",
+              { style: { fontSize: 13, color: "#52606d", marginBottom: 6 } },
+              "区画クリック時の動作"
+            ),
+            React.createElement(
+              "div",
+              { style: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 } },
+              React.createElement(
+                "button",
+                {
+                  type: "button",
+                  style:
+                    interactionMode === "inspect"
+                      ? {
+                          border: "2px solid #2563eb",
+                          borderRadius: 12,
+                          padding: "10px 14px",
+                          background: "#2563eb",
+                          color: "white",
+                          fontWeight: 900,
+                          cursor: "pointer",
+                        }
+                      : {
+                          border: "1px solid #94a3b8",
+                          borderRadius: 12,
+                          padding: "10px 14px",
+                          background: "white",
+                          color: "#334155",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                        },
+                  onClick: () => setInteractionMode("inspect"),
+                },
+                "情報確認"
+              ),
+              React.createElement(
+                "button",
+                {
+                  type: "button",
+                  style:
+                    interactionMode === "apply"
+                      ? {
+                          border: "2px solid #f97316",
+                          borderRadius: 12,
+                          padding: "10px 14px",
+                          background: "#f97316",
+                          color: "white",
+                          fontWeight: 900,
+                          cursor: "pointer",
+                        }
+                      : {
+                          border: "1px solid #94a3b8",
+                          borderRadius: 12,
+                          padding: "10px 14px",
+                          background: "white",
+                          color: "#334155",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                        },
+                  onClick: () => setInteractionMode("apply"),
+                },
+                "防除実施"
+              )
+            ),
+            React.createElement(
+              "div",
+              { style: { fontSize: 12, color: "#52606d", lineHeight: 1.5 } },
+              interactionMode === "apply"
+                ? `現在は防除実施モードです。圃場タブで区画をクリックすると「${tool.mark} ${tool.name}」を実施します。`
+                : "現在は情報確認モードです。区画をクリックしても防除は実施されません。"
+            )
+          )}
+
           <div style={styles.selectedToolBox}>
             <div style={{ fontSize: 13, color: "#52606d", marginBottom: 4 }}>
               現在選択中の防除手段
@@ -1407,7 +1540,8 @@ export default function App() {
                 }}
                 onClick={() => {
                   setToolKey(key);
-                  educate(`【防除選択】${t.mark} ${t.name}\n${t.edu}\n\n次に、圃場マップ上の区画をクリックすると実施されます。`);
+                  setInteractionMode("apply"); setInteractionMode("apply");
+                  educate(`【防除選択】${t.mark} ${t.name}\n${t.edu}\n\n防除実施モードに切り替えました。次に圃場区画をクリックすると実施されます。`);
                 }}
               >
                 <b>{t.mark} {t.name}</b>
@@ -1726,6 +1860,10 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
+
 
 
 

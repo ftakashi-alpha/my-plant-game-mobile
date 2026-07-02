@@ -2,3 +2,7 @@
 dist
 .env
 .vscode
+src/App_before_*.jsx
+src/App_broken_*.jsx
+src/App_restored_*.jsx
+src/App_stable_*.jsx
