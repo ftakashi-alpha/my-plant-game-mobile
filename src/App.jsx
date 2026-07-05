@@ -7,10 +7,10 @@ const clamp = (v, min = 0, max = 1) => Math.max(min, Math.min(max, v));
 const pct = (v) => `${Math.round(v * 1000) / 10}%`;
 
 const difficulties = {
-  easy: { name: "やさしい", money: 190, income: 16, risk: 0.62, growth: 1.2 },
-  normal: { name: "ふつう", money: 150, income: 14, risk: 0.88, growth: 1.08 },
-  hard: { name: "むずかしい", money: 115, income: 11, risk: 1.18, growth: 0.98 },
-  research: { name: "研究用調整", money: 150, income: 14, risk: 0.88, growth: 1.08 },
+  easy: { name: "やさしい", money: 190, income: 16, risk: 0.45, growth: 1.2 },
+  normal: { name: "ふつう", money: 150, income: 14, risk: 0.60, growth: 1.08 },
+  hard: { name: "むずかしい", money: 115, income: 11, risk: 0.90, growth: 0.98 },
+  research: { name: "研究用調整", money: 150, income: 14, risk: 0.60, growth: 1.08 },
 };
 
 const cropModes = {
@@ -292,9 +292,9 @@ const tools = {
 };
 
 const naturalEventSettings = {
-  enemyProb: 0.14,
-  microbeProb: 0.14,
-  bothProb: 0.05,
+  enemyProb: 0.18,
+  microbeProb: 0.18,
+  bothProb: 0.06,
   duration: 3,
   enemyVectorReduction: 0.28,
   enemyInfectionReduction: 0.07,
@@ -413,7 +413,7 @@ export default function App() {
   const [interactionMode, setInteractionMode] = useState("inspect");
 
   const [research, setResearch] = useState({
-    risk: 1.0,
+    risk: 0.6,
     income: 12,
     initialPathogenPressure: 30,
     initialVectorLevel: 20,
@@ -899,14 +899,14 @@ export default function App() {
 
       if (infection >= 45) {
         diseaseGain =
-          (infection - 35) * 0.075 *
+          (infection - 35) * 0.060 *
           difficulty.risk *
           crop.deathFactor *
           mode.pathogenRisk;
       }
 
       diseaseGain +=
-        (nextPathogen / 100) * 3.0 *
+        (nextPathogen / 100) * 2.4 *
         crop.pathogenFactor *
         mode.pathogenRisk;
 
@@ -1860,6 +1860,7 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
 
 
 
