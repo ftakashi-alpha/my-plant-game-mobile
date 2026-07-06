@@ -596,6 +596,11 @@ export default function App() {
   const ipmScore = useMemo(() => {
     const used = Object.keys(actions).filter((k) => actions[k] > 0);
     const types = new Set(used.map((k) => tools[k]?.type || "other"));
+    const actionTotal = used.reduce(function (s, k) {
+      return s + (actions[k] || 0);
+    }, 0);
+    const chemicalActions = (actions.fungicide || 0) + (actions.insecticide || 0);
+    const nonChemicalActions = actionTotal - chemicalActions;
     let score = 50;
 
     if (used.includes("monitor")) score += 10;
@@ -608,6 +613,12 @@ export default function App() {
     if (fungicideRes >= 0.55 || insecticideRes >= 0.55) score -= 15;
     if (summary.dead > 0) score -= summary.dead * 2;
     if (summary.diseased + summary.severe >= 8) score -= 10;
+
+    // IPM教育用ペナルティ：診断なし・完全無防除・化学防除のみを低評価にする
+    if (!used.includes("monitor")) score -= 10;
+    if (actionTotal === 0) score -= 15;
+    if (chemicalActions > 0 && nonChemicalActions === 0) score -= 10;
+
     if (summary.yieldValue >= 80) score += 5;
 
     return Math.round(clamp(score, 0, 100));
@@ -974,6 +985,20 @@ export default function App() {
     let adjustedNextVector = nextVector;
     let adjustedNextPathogen = nextPathogen;
     const naturalLogs = [];
+    const unmanagedNoAction =
+      turn >= 3 &&
+      Object.values(actions).reduce(function (s, v) {
+        return s + (v || 0);
+      }, 0) === 0;
+
+    if (unmanagedNoAction) {
+      adjustedNextPathogen = clamp(adjustedNextPathogen + 2, 0, 100);
+      adjustedNextVector = clamp(adjustedNextVector + 2, 0, 100);
+      naturalLogs.push(
+        "無診断・無防除が続いたため、病原菌圧と媒介虫密度が少し上昇しました。"
+      );
+    }
+
 
     const naturalRoll = Math.random();
     let naturalType = "none";
@@ -1108,14 +1133,28 @@ export default function App() {
     }
   }
 
+  const evalActionTotal = Object.values(actions).reduce(function (s, v) {
+    return s + (v || 0);
+  }, 0);
   const yieldLabel =
-    summary.yieldValue >= 85
+    summary.yieldValue >= 95 && ipmScore >= 60 && evalActionTotal > 0
       ? "優秀"
-      : summary.yieldValue >= 70
+      : summary.yieldValue >= 95
+      ? "高収量だがIPM改善余地あり"
+      : summary.yieldValue >= 80
       ? "良好"
-      : summary.yieldValue >= 50
+      : summary.yieldValue >= 60
+      ? "標準"
+      : summary.yieldValue >= 40
       ? "要改善"
-      : "大きな被害";
+      : "大きく改善が必要";
+
+  const yieldAdvice =
+    summary.yieldValue >= 95 && (ipmScore < 60 || evalActionTotal === 0)
+      ? "高収量ですが、診断・生物防除・物理防除などIPM面の改善余地があります。完全無防除の場合は、収量が高くてもIPMとしては優秀評価になりません。"
+      : summary.yieldValue >= 95 && ipmScore >= 60 && evalActionTotal > 0
+      ? "高収量とIPMを両立できています。"
+      : "";
 
   return (
     <div className={"mobile-tab-" + mobileTab} style={styles.app}>
@@ -1907,6 +1946,10 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
+
 
 
 
