@@ -352,7 +352,7 @@ function getStatus(p) {
 }
 
 
-function getPlantIllustration(plot, crop) {
+function getPlantIllustration(plot, crop, showLatent = false) {
   if (plot.dead) {
     return { icon: "💀", label: "枯死" };
   }
@@ -365,7 +365,7 @@ function getPlantIllustration(plot, crop) {
     return { icon: `${crop.icon}🟠`, label: "初期発病" };
   }
 
-  if (plot.infection >= 45) {
+  if (showLatent && plot.infection >= 45) {
     return { icon: `${crop.icon}🟡`, label: "潜伏感染" };
   }
 
@@ -1360,11 +1360,16 @@ export default function App() {
 
           <div style={styles.fieldGrid}>
             {plots.map((p) => {
-              const st = getStatus(p);
-              const plantInfo = getPlantIllustration(p, crop);
+              const eff = sumEffects(p);
+              const isDiagnosed = eff.hasDiagnosis;
+              const rawStatus = getStatus(p);
+              const st =
+                !p.dead && p.disease < 35 && p.infection >= 45 && !isDiagnosed
+                  ? { label: "健全", color: "#dcfce7", text: "#1f2933", mark: "" }
+                  : rawStatus;
+              const plantInfo = getPlantIllustration(p, crop, isDiagnosed);
               const isSelected = selected.includes(p.id);
               const isPreview = previewIds.includes(p.id);
-              const eff = sumEffects(p);
               const isActive = eff.activeCount > 0;
               const isCenter = hoveredId === p.id || selected.includes(p.id);
 
@@ -1656,15 +1661,22 @@ export default function App() {
 }
 
 function HoverDetail({ plot, riskInfo, baseRisk }) {
-  const st = getStatus(plot);
   const eff = riskInfo.eff;
+  const isDiagnosed = eff.hasDiagnosis;
+  const rawStatus = getStatus(plot);
+  const hideLatentInfo = !plot.dead && plot.disease < 35 && !isDiagnosed;
+
+  const st =
+    !plot.dead && plot.disease < 35 && plot.infection >= 45 && !isDiagnosed
+      ? { label: "健全", color: "#dcfce7", text: "#1f2933", mark: "" }
+      : rawStatus;
 
   return (
     <div style={styles.detailBox}>
       <b>区画 {plot.id + 1}：{st.label}</b>
 
       <div style={styles.smallText}>
-        感染度={Math.round(plot.infection)} / 病勢={Math.round(plot.disease)} / 成長={Math.round(plot.growth)}
+        {hideLatentInfo ? "感染度=未診断" : `感染度=${Math.round(plot.infection)}`} / 病勢={Math.round(plot.disease)} / 成長={Math.round(plot.growth)}
       </div>
 
       {!eff.hasDiagnosis ? (
@@ -1675,7 +1687,7 @@ function HoverDetail({ plot, riskInfo, baseRisk }) {
             詳細な病原菌・媒介虫・推定リスク情報は表示されません。
           </div>
           <div style={styles.smallText}>
-            表示可能情報：感染度、病勢、成長、症状ステージ、防除継続の有無。
+            表示可能情報：病勢、成長、目に見える症状ステージ、防除継続の有無。潜伏感染の有無は診断・トラップで確認できます。
           </div>
         </>
       ) : (
@@ -1895,6 +1907,9 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
 
 
 
