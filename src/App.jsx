@@ -351,6 +351,39 @@ function getStatus(p) {
   return { label: "健全", color: "#dcfce7", text: "#1f2933", mark: "" };
 }
 
+
+function getPlantIllustration(plot, crop) {
+  if (plot.dead) {
+    return { icon: "💀", label: "枯死" };
+  }
+
+  if (plot.disease >= 70) {
+    return { icon: "🥀", label: "重症" };
+  }
+
+  if (plot.disease >= 35) {
+    return { icon: `${crop.icon}🟠`, label: "初期発病" };
+  }
+
+  if (plot.infection >= 45) {
+    return { icon: `${crop.icon}🟡`, label: "潜伏感染" };
+  }
+
+  if (plot.growth >= 70) {
+    return { icon: crop.icon, label: "収量形成期" };
+  }
+
+  if (plot.growth >= 35) {
+    return { icon: crop.icon, label: "生育良好" };
+  }
+
+  if (plot.growth >= 15) {
+    return { icon: "🌿", label: "生育中" };
+  }
+
+  return { icon: "🌱", label: "生育初期" };
+}
+
 function level(v) {
   if (v < 0.25) return "🟢低";
   if (v < 0.55) return "🟡中";
@@ -1328,6 +1361,7 @@ export default function App() {
           <div style={styles.fieldGrid}>
             {plots.map((p) => {
               const st = getStatus(p);
+              const plantInfo = getPlantIllustration(p, crop);
               const isSelected = selected.includes(p.id);
               const isPreview = previewIds.includes(p.id);
               const eff = sumEffects(p);
@@ -1353,8 +1387,9 @@ export default function App() {
                     transform: isSelected ? "scale(1.03)" : "scale(1)",
                   }}
                 >
-                  <div>{p.dead ? "💀" : crop.icon}{st.mark}</div>
+                  <div>{plantInfo.icon}</div>
                   <div>{st.label}</div>
+                  <div style={{ fontSize: 10 }}>{plantInfo.label}</div>
                   <div>病勢 {Math.round(p.disease)}</div>
                   <div style={{ fontSize: 10 }}>防除 {pct(eff.infectionReduction)}</div>
                   {eff.marks && eff.marks.length > 0 && (
@@ -1860,6 +1895,9 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
 
 
 
