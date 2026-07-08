@@ -923,6 +923,18 @@ export default function App() {
 
     const wholeRisk = clamp(pathogenPart + vectorPart + newWeather.diseaseBonus + newWeather.vectorBonus, 0.01, 0.9);
 
+    const unmanagedDiseasePressure =
+      Object.values(actions).reduce(function (s, v) {
+        return s + (v || 0);
+      }, 0) === 0;
+
+    const unmanagedModeDiseaseMultiplier =
+      unmanagedDiseasePressure && modeKey === "general"
+        ? 1.25
+        : unmanagedDiseasePressure && modeKey === "virus"
+        ? 2.75
+        : 1.0;
+
     const nextPlots = plots.map((p) => {
       if (p.dead) return p;
 
@@ -954,6 +966,14 @@ export default function App() {
         crop.pathogenFactor *
         mode.pathogenRisk;
 
+      const virusVectorDiseaseGain =
+        unmanagedDiseasePressure && modeKey === "virus"
+          ? (nextVector / 100) * 3.0 * difficulty.risk * crop.vectorFactor
+          : 0;
+
+      diseaseGain += virusVectorDiseaseGain;
+
+      diseaseGain *= unmanagedModeDiseaseMultiplier;
       diseaseGain *= 1 - eff.diseaseReduction;
 
       const recovery = p.effects.some((e) => e.key === "microbe" || e.key === "rainShelter" || e.key === "immunity")
@@ -1946,6 +1966,12 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
+
+
+
 
 
 
