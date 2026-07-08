@@ -624,6 +624,89 @@ export default function App() {
     return Math.round(clamp(score, 0, 100));
   }, [actions, fungicideRes, insecticideRes, summary]);
 
+
+  const ipmBreakdown = useMemo(() => {
+    const used = Object.keys(actions).filter(function (k) {
+      return actions[k] > 0;
+    });
+
+    const types = new Set(
+      used.map(function (k) {
+        return tools[k] && tools[k].type ? tools[k].type : "other";
+      })
+    );
+
+    const actionTotal = used.reduce(function (s, k) {
+      return s + (actions[k] || 0);
+    }, 0);
+
+    const chemicalActions = (actions.fungicide || 0) + (actions.insecticide || 0);
+    const nonChemicalActions = actionTotal - chemicalActions;
+
+    const items = [];
+
+    function add(label, delta, detail) {
+      items.push({ label: label, delta: delta, detail: detail });
+    }
+
+    add("基礎点", 50, "IPM評価の出発点です。");
+
+    if (used.includes("monitor")) {
+      add("診断・トラップを実施", 10, "潜伏感染や媒介虫リスクを把握できました。");
+    } else {
+      add("診断・トラップ未実施", -10, "見えない感染リスクの把握が不十分です。");
+    }
+
+    if (types.has("bio")) {
+      add("生物防除を使用", 10, "天敵や拮抗微生物を活用しました。");
+    }
+
+    if (types.has("physical")) {
+      add("物理防除を使用", 10, "防虫ネットや雨除けなどで予防的管理を行いました。");
+    }
+
+    if (types.has("host")) {
+      add("抵抗性・宿主防御を利用", 8, "抵抗性品種や免疫誘導を活用しました。");
+    }
+
+    if (types.has("sanitation")) {
+      add("衛生管理を実施", 5, "抜き取りなどで感染源管理を行いました。");
+    }
+
+    if (chemicalActions > 0 && types.size >= 3) {
+      add("化学防除をIPM体系の一部として使用", 7, "薬剤だけでなく複数の手段を組み合わせています。");
+    }
+
+    if (chemicalActions >= 6) {
+      add("化学薬剤の使用回数が多い", -15, "薬剤耐性・抵抗性リスクが高まります。");
+    }
+
+    if (fungicideRes >= 0.55 || insecticideRes >= 0.55) {
+      add("薬剤耐性・抵抗性リスクが高い", -15, "同じ系統への依存を減らす必要があります。");
+    }
+
+    if (summary.dead > 0) {
+      add("枯死区画あり", -summary.dead * 2, "枯死区画数に応じて減点されます。");
+    }
+
+    if (summary.diseased + summary.severe >= 8) {
+      add("発病・重症区画が多い", -10, "防除タイミングや予防管理に改善余地があります。");
+    }
+
+    if (actionTotal === 0) {
+      add("完全無防除", -15, "何も管理しない放任状態はIPMとして低評価です。");
+    }
+
+    if (chemicalActions > 0 && nonChemicalActions === 0) {
+      add("化学防除のみ", -10, "生物防除・物理防除・診断との組み合わせが不足しています。");
+    }
+
+    if (summary.yieldValue >= 80) {
+      add("収量点80以上", 5, "収量を一定以上維持できました。");
+    }
+
+    return items;
+  }, [actions, fungicideRes, insecticideRes, summary]);
   const finalScore = Math.max(
     0,
     Math.round(summary.yieldValue * 8 + ipmScore * 4 + money - summary.diseased * 6 - summary.dead * 18)
@@ -1393,6 +1476,63 @@ export default function App() {
             収量評価：<b>{yieldLabel}</b> / 収量点：<b>{summary.yieldValue}</b> /
             IPM評価：<b>{ipmScore}</b> / 総合スコア：<b>{finalScore}</b>
           </p>
+          {gameOver &&
+            React.createElement(
+              "div",
+              {
+                style: {
+                  background: "#f8fafc",
+                  border: "1px solid #cbd5e1",
+                  borderRadius: 14,
+                  padding: 12,
+                  marginTop: 10,
+                },
+              },
+              React.createElement(
+                "div",
+                {
+                  style: {
+                    fontSize: 14,
+                    fontWeight: 900,
+                    marginBottom: 8,
+                    color: "#1f2933",
+                  },
+                },
+                "IPM評価の内訳"
+              ),
+              ...ipmBreakdown.map(function (item, index) {
+                return React.createElement(
+                  "div",
+                  {
+                    key: index,
+                    style: {
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 8,
+                      padding: "4px 0",
+                      borderTop: index === 0 ? "0" : "1px solid #e5e7eb",
+                      fontSize: 12,
+                    },
+                  },
+                  React.createElement(
+                    "span",
+                    { title: item.detail },
+                    item.label
+                  ),
+                  React.createElement(
+                    "b",
+                    {
+                      style: {
+                        color: item.delta >= 0 ? "#166534" : "#b91c1c",
+                        whiteSpace: "nowrap",
+                      },
+                    },
+                    (item.delta > 0 ? "+" + item.delta : String(item.delta)) + "点"
+                  )
+                );
+              })
+            )}
+
         </section>
       )}
 
@@ -1997,6 +2137,7 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
 
 
 
