@@ -1444,7 +1444,7 @@ export default function App() {
             防除手段を選択後、圃場区画をクリックまたはタップすると防除が実施されます。範囲型はクリック/タップ区画を中心に最大9区画へ作用します。単一区画型はその区画のみに作用します。青破線＝影響予定区画、緑枠・継続＝防除効果が継続中の区画です。
           </p>
 
-          <div style={styles.buttonLine}><button style={styles.button} onClick={nextTurn} disabled={gameOver}>1ターン進める</button>
+          <div style={styles.buttonLine}><button style={styles.button} onClick={nextTurn} disabled={gameOver}>{gameOver ? "🏁 ゲーム終了" : "▶ 1ターン進める"}</button>
             <button style={styles.buttonRed} onClick={() => reset()}>リセット</button>
           </div>
 
@@ -1997,6 +1997,7 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
 
 
 
