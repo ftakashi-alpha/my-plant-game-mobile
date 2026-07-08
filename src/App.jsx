@@ -1145,8 +1145,39 @@ export default function App() {
     if (turn >= MAX_TURN) {
       setGameOver(true);
       const label = ipmScore >= 80 ? "優良" : ipmScore >= 60 ? "良好" : ipmScore >= 40 ? "要改善" : "大きく改善が必要";
+      const endActionTotal = Object.values(actions).reduce(function (s, v) {
+        return s + (v || 0);
+      }, 0);
+      const endChemicalActions = (actions.fungicide || 0) + (actions.insecticide || 0);
+      const endNonChemicalActions = endActionTotal - endChemicalActions;
+      const endUsed = Object.keys(actions).filter(function (k) {
+        return actions[k] > 0;
+      });
+      const endTypes = new Set(endUsed.map(function (k) {
+        return tools[k] && tools[k].type ? tools[k].type : "other";
+      }));
+
+      let endAdvice = "";
+
+      if (endActionTotal === 0) {
+        endAdvice = "完全無防除・無診断で終了しました。収量が高くても、IPMでは診断・監視・予防的管理によるリスク把握が重要です。";
+      } else if (!endUsed.includes("monitor")) {
+        endAdvice = "診断・トラップを使っていません。潜伏感染や媒介虫リスクを把握するため、早期診断を組み込むとIPM評価が高まります。";
+      } else if (endChemicalActions > 0 && endNonChemicalActions === 0) {
+        endAdvice = "化学防除に依存した管理です。耐性リスクを下げるため、生物防除・物理防除・抵抗性利用との組み合わせを検討しましょう。";
+      } else if (summary.dead > 0 || summary.severe >= 4) {
+        endAdvice = "重症・枯死区画が目立ちます。診断後の介入タイミングを早め、予防的な物理防除や生物防除を組み合わせると改善できます。";
+      } else if (endTypes.has("bio") && endTypes.has("physical") && endUsed.includes("monitor")) {
+        endAdvice = "診断に基づき、生物防除と物理防除を組み合わせた良好なIPMです。薬剤耐性リスクも抑えやすい管理になっています。";
+      } else if (ipmScore >= 80) {
+        endAdvice = "IPM評価が高く、診断・防除の組み合わせが適切です。収量とリスク管理の両立ができています。";
+      } else if (summary.yieldValue >= 95 && ipmScore < 60) {
+        endAdvice = "高収量ですが、IPM評価は低めです。診断・生物防除・物理防除・抵抗性利用を組み合わせると、教育的にはより良い管理になります。";
+      } else {
+        endAdvice = "収量と病害抑制のバランスを確認しましょう。診断、予防、防除の組み合わせを増やすとIPM評価を改善できます。";
+      }
       setLesson(
-        `【ゲーム終了評価】\n収量点=${summary.yieldValue}、IPM評価=${ipmScore}点（${label}）、総合スコア=${finalScore}点。\n\n殺菌剤耐性=${level(fungicideRes)}、殺虫剤抵抗性=${level(insecticideRes)}。\n診断・物理防除・生物防除・抵抗性利用を組み合わせるほどIPM評価が高くなります。天然天敵や天然拮抗微生物が発生した場合は、自然抑制効果も防除効果として活用できます。`
+        `【ゲーム終了評価】\n収量点=${summary.yieldValue}、IPM評価=${ipmScore}点（${label}）、総合スコア=${finalScore}点。\n\n殺菌剤耐性=${level(fungicideRes)}、殺虫剤抵抗性=${level(insecticideRes)}。\n診断・物理防除・生物防除・抵抗性利用を組み合わせるほどIPM評価が高くなります。天然天敵や天然拮抗微生物が発生した場合は、自然抑制効果も防除効果として活用できます。${endAdvice ? `\n\n【講評】${endAdvice}` : ""}`
       );
     } else {
       setTurn((t) => t + 1);
@@ -1966,6 +1997,7 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
 
 
 
