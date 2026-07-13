@@ -412,6 +412,27 @@ function weatherInfo(turn) {
   return { icon: "⛅", name: "平常", diseaseBonus: 0, vectorBonus: 0, text: "標準的な感染リスクです。" };
 }
 
+function getVectorFlyIcon(cropKey, modeKey) {
+  if (modeKey === "virus" || modeKey === "viral") {
+    if (cropKey === "tomato") return "🪰";
+    if (cropKey === "cucumber") return "🪲";
+    if (cropKey === "pepper") return "🪰";
+    if (cropKey === "eggplant") return "🪰";
+    return "🐛";
+  }
+
+  if (modeKey === "bacterial") {
+    return "💧";
+  }
+
+  if (modeKey === "fungal") {
+    return "🍃";
+  }
+
+  return "🐛";
+}
+
+
 function neighbors(id) {
   const r = Math.floor(id / SIZE);
   const c = id % SIZE;
@@ -467,6 +488,7 @@ export default function App() {
   const [showRain, setShowRain] = useState(false);
   const [showWind, setShowWind] = useState(false);
   const [showVectorFly, setShowVectorFly] = useState(false);
+  const [vectorFlyIcon, setVectorFlyIcon] = useState("🐛");
   const [toolKey, setToolKey] = useState("monitor");
   const [turn, setTurn] = useState(1);
   const [money, setMoney] = useState(difficulties.normal.money);
@@ -1010,6 +1032,7 @@ if (newWeather.name === "強風") {
     const vectorEvent = Math.random() < 0.22;
 
     if (vectorEvent) {
+      setVectorFlyIcon(getVectorFlyIcon(cropKey, modeKey));
       setShowVectorFly(true);
 
       setTimeout(() => {
@@ -1340,7 +1363,7 @@ if (newWeather.name === "強風") {
 >
 
       {showRain && <div className="weather-rain" />}
-      {showVectorFly && <div className="vector-fly">🐛</div>}
+      {showVectorFly && <div className="vector-fly">{vectorFlyIcon}</div>}
       {React.createElement("style", null, `
         /* mobile-bottom-tabs-safe-css */
         .mobile-bottom-nav-safe,
@@ -2188,6 +2211,8 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
 
 
 
