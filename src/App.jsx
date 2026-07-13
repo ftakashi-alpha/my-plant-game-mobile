@@ -351,6 +351,14 @@ function getStatus(p) {
   return { label: "健全", color: "#dcfce7", text: "#1f2933", mark: "" };
 }
 
+function getDiseaseMarkClass(mark) {
+  if (mark === "🟡") return "disease-mark disease-latent";
+  if (mark === "🟠") return "disease-mark disease-early";
+  if (mark === "🔴") return "disease-mark disease-severe";
+  return "disease-mark";
+}
+
+
 
 function getPlantIllustration(plot, crop, showLatent = false) {
   if (plot.dead) {
@@ -455,6 +463,9 @@ export default function App() {
   const [plots, setPlots] = useState(createPlots);
   const [selected, setSelected] = useState([]);
   const [hoveredId, setHoveredId] = useState(null);
+  const [flashPlots, setFlashPlots] = useState([]);
+  const [showRain, setShowRain] = useState(false);
+  const [showWind, setShowWind] = useState(false);
   const [toolKey, setToolKey] = useState("monitor");
   const [turn, setTurn] = useState(1);
   const [money, setMoney] = useState(difficulties.normal.money);
@@ -846,7 +857,13 @@ export default function App() {
 
     setMoney((m) => m - cost);
 
-    setPlots((prev) =>
+setFlashPlots(targetIds);
+
+setTimeout(() => {
+  setFlashPlots([]);
+}, 800);
+
+setPlots((prev) =>
       prev.map((p) => {
         if (!targetIds.includes(p.id)) return p;
 
@@ -972,6 +989,23 @@ export default function App() {
     if (gameOver) return;
 
     const newWeather = weatherInfo(turn + 1);
+	
+if (newWeather.name === "長雨") {
+  setShowRain(true);
+
+  setTimeout(() => {
+    setShowRain(false);
+  }, 1500);
+}
+
+if (newWeather.name === "強風") {
+  setShowWind(true);
+
+  setTimeout(() => {
+    setShowWind(false);
+  }, 1000);
+}
+
     const vectorEvent = Math.random() < 0.22;
     const vectorIncrease = vectorEvent ? Math.round(8 + Math.random() * 12) : Math.round(Math.random() * 4);
 
@@ -1291,7 +1325,12 @@ export default function App() {
       : "";
 
   return (
-    <div className={"mobile-tab-" + mobileTab} style={styles.app}>
+    <div
+  className={"mobile-tab-" + mobileTab + (showWind ? " wind-shake" : "")}
+  style={styles.app}
+>
+
+      {showRain && <div className="weather-rain" />}
       {React.createElement("style", null, `
         /* mobile-bottom-tabs-safe-css */
         .mobile-bottom-nav-safe,
@@ -1601,6 +1640,7 @@ export default function App() {
               const isSelected = selected.includes(p.id);
               const isPreview = previewIds.includes(p.id);
               const isActive = eff.activeCount > 0;
+			  const isFlashing = flashPlots.includes(p.id);
               const isCenter = hoveredId === p.id || selected.includes(p.id);
 
               let outline = "1px solid rgba(0,0,0,0.12)";
@@ -1611,6 +1651,7 @@ export default function App() {
               return (
                 <button
                   key={p.id}
+				   className={isFlashing ? "flash-spray" : ""}
                   onClick={() => togglePlot(p.id)}
                   onMouseEnter={() => setHoveredId(p.id)}
                   onFocus={() => setHoveredId(p.id)}
@@ -1622,7 +1663,7 @@ export default function App() {
                     transform: isSelected ? "scale(1.03)" : "scale(1)",
                   }}
                 >
-                  <div>{plantInfo.icon}</div>
+                  <div className={getDiseaseMarkClass(st.mark)}>{plantInfo.icon}</div>
                   <div>{st.label}</div>
                   <div style={{ fontSize: 10 }}>{plantInfo.label}</div>
                   <div>病勢 {Math.round(p.disease)}</div>
@@ -2137,6 +2178,10 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
+
 
 
 
