@@ -158,3 +158,43 @@ body {
   }
 }
 
+
+.vector-fly {
+  position: fixed;
+  left: -80px;
+  top: 35%;
+  z-index: 1000;
+  pointer-events: none;
+  font-size: 42px;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.25));
+  animation: vectorFlyAcross 1.4s ease-in-out forwards;
+}
+
+@keyframes vectorFlyAcross {
+  0% {
+    transform: translateX(0) translateY(0) rotate(-12deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  35% {
+    transform: translateX(38vw) translateY(-24px) rotate(8deg);
+  }
+
+  65% {
+    transform: translateX(70vw) translateY(18px) rotate(-6deg);
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(115vw) translateY(-10px) rotate(12deg);
+    opacity: 0;
+  }
+}
+
