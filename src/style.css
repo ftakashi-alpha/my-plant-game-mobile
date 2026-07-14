@@ -360,3 +360,62 @@ body {
   }
 }
 
+
+/* =====================================================
+   Transmission explanation message
+   伝搬説明メッセージ
+   ===================================================== */
+
+.transmission-message {
+  position: fixed;
+  left: 50%;
+  top: 92px;
+  transform: translateX(-50%);
+  z-index: 1200;
+  pointer-events: none;
+
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  border-radius: 999px;
+  padding: 10px 18px;
+
+  font-size: 14px;
+  font-weight: 800;
+  color: #1f2933;
+
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+  animation: transmissionMessageFade 1.4s ease-out forwards;
+}
+
+@keyframes transmissionMessageFade {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+}
+
+@media (max-width: 700px) {
+  .transmission-message {
+    top: 78px;
+    max-width: calc(100vw - 24px);
+    font-size: 12px;
+    padding: 8px 12px;
+    white-space: normal;
+    text-align: center;
+  }
+}
+

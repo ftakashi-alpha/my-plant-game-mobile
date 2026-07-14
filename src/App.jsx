@@ -543,6 +543,23 @@ function chooseVectorTracePlots(plots) {
   };
 }
 
+
+function getTransmissionMessage(modeKey) {
+  if (modeKey === "bacterial") {
+    return "💧 雨滴により病原菌が拡散しました";
+  }
+
+  if (modeKey === "fungal") {
+    return "🍃 風で胞子が拡散しました";
+  }
+
+  if (modeKey === "virus" || modeKey === "viral") {
+    return "🐛 媒介虫が病原体を運びました";
+  }
+
+  return "⚠️ 感染リスクが伝搬しました";
+}
+
 export default function App() {
   const [difficultyKey, setDifficultyKey] = useState("normal");
   const [cropKey, setCropKey] = useState("tomato");
@@ -571,6 +588,7 @@ export default function App() {
   const [currentWeather, setCurrentWeather] = useState(() => weatherFromKey("normal"));
   const [vectorFlyIcon, setVectorFlyIcon] = useState("🐛");
   const [vectorTrace, setVectorTrace] = useState(null);
+  const [transmissionMessage, setTransmissionMessage] = useState("");
   const [toolKey, setToolKey] = useState("monitor");
   const [turn, setTurn] = useState(1);
   const [money, setMoney] = useState(difficulties.normal.money);
@@ -1125,12 +1143,14 @@ if (newWeather.name === "強風") {
 
       if (trace) {
         setVectorTrace({ ...trace, icon: traceIcon });
+        setTransmissionMessage(getTransmissionMessage(modeKey));
       }
       setShowVectorFly(true);
 
       setTimeout(() => {
         setShowVectorFly(false);
         setVectorTrace(null);
+        setTransmissionMessage("");
       }, 1400);
     }
     const vectorIncrease = vectorEvent ? Math.round(8 + Math.random() * 12) : Math.round(Math.random() * 4);
@@ -1468,6 +1488,11 @@ if (newWeather.name === "強風") {
 
       {showRain && <div className="weather-rain" />}
       {showWind && <div className="weather-wind" />}
+      {transmissionMessage && (
+        <div className="transmission-message">
+          {transmissionMessage}
+        </div>
+      )}
       <div className="weather-forecast-panel">
         <div><b>📡 天候情報</b></div>
         <div><b>現在の天候：{currentWeather.icon}{currentWeather.name}</b></div>
@@ -2339,6 +2364,7 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
 
 
 
