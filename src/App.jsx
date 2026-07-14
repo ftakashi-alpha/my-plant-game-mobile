@@ -506,6 +506,43 @@ function rollWeather(forecast) {
   return "normal";
 }
 
+
+const FIELD_COLS = 5;
+
+function getPlotCenterPercent(id, total, cols = FIELD_COLS) {
+  const rows = Math.ceil(total / cols);
+  const col = id % cols;
+  const row = Math.floor(id / cols);
+
+  return {
+    x: ((col + 0.5) / cols) * 100,
+    y: ((row + 0.5) / rows) * 100,
+  };
+}
+
+function chooseVectorTracePlots(plots) {
+  const infectedPlots = plots.filter((p) =>
+    !p.dead &&
+    (p.disease >= 35 || p.infection >= 45 || p.pathogen)
+  );
+
+  const healthyPlots = plots.filter((p) =>
+    !p.dead && p.disease < 35 && p.infection < 45
+  );
+
+  if (infectedPlots.length === 0 || healthyPlots.length === 0) {
+    return null;
+  }
+
+  const from = infectedPlots[Math.floor(Math.random() * infectedPlots.length)];
+  const to = healthyPlots[Math.floor(Math.random() * healthyPlots.length)];
+
+  return {
+    fromId: from.id,
+    toId: to.id,
+  };
+}
+
 export default function App() {
   const [difficultyKey, setDifficultyKey] = useState("normal");
   const [cropKey, setCropKey] = useState("tomato");
@@ -533,6 +570,7 @@ export default function App() {
   const [nextWeatherKey, setNextWeatherKey] = useState(() => rollWeather(forecast));
   const [currentWeather, setCurrentWeather] = useState(() => weatherFromKey("normal"));
   const [vectorFlyIcon, setVectorFlyIcon] = useState("🐛");
+  const [vectorTrace, setVectorTrace] = useState(null);
   const [toolKey, setToolKey] = useState("monitor");
   const [turn, setTurn] = useState(1);
   const [money, setMoney] = useState(difficulties.normal.money);
@@ -1080,11 +1118,19 @@ if (newWeather.name === "強風") {
     const vectorEvent = Math.random() < 0.22;
 
     if (vectorEvent) {
-      setVectorFlyIcon(getVectorFlyIcon(cropKey, modeKey));
+      const traceIcon = getVectorFlyIcon(cropKey, modeKey);
+      const trace = chooseVectorTracePlots(plots);
+
+      setVectorFlyIcon(traceIcon);
+
+      if (trace) {
+        setVectorTrace({ ...trace, icon: traceIcon });
+      }
       setShowVectorFly(true);
 
       setTimeout(() => {
         setShowVectorFly(false);
+        setVectorTrace(null);
       }, 1400);
     }
     const vectorIncrease = vectorEvent ? Math.round(8 + Math.random() * 12) : Math.round(Math.random() * 4);
@@ -1406,13 +1452,22 @@ if (newWeather.name === "強風") {
 
 
   const nextWeatherPreview = weatherFromKey(nextWeatherKey);
+
+  const vectorTraceFrom = vectorTrace
+    ? getPlotCenterPercent(vectorTrace.fromId, plots.length)
+    : null;
+
+  const vectorTraceTo = vectorTrace
+    ? getPlotCenterPercent(vectorTrace.toId, plots.length)
+    : null;
   return (
     <div
-  className={"mobile-tab-" + mobileTab + (showWind ? " wind-shake" : "")}
+  className={"mobile-tab-" + mobileTab}
   style={styles.app}
 >
 
       {showRain && <div className="weather-rain" />}
+      {showWind && <div className="weather-wind" />}
       <div className="weather-forecast-panel">
         <div><b>📡 天候情報</b></div>
         <div><b>現在の天候：{currentWeather.icon}{currentWeather.name}</b></div>
@@ -1719,7 +1774,21 @@ if (newWeather.name === "強風") {
             <button style={styles.buttonRed} onClick={() => reset()}>リセット</button>
           </div>
 
-          <div style={styles.fieldGrid}>
+          <div style={{ ...styles.fieldGrid, position: "relative" }}>
+            {vectorTrace && vectorTraceFrom && vectorTraceTo && (
+              <div
+                className="vector-trace-layer"
+                style={{
+                  "--from-x": `${vectorTraceFrom.x}%`,
+                  "--from-y": `${vectorTraceFrom.y}%`,
+                  "--to-x": `${vectorTraceTo.x}%`,
+                  "--to-y": `${vectorTraceTo.y}%`,
+                }}
+              >
+                <div className="vector-trace-target" />
+                <div className="vector-trace-bug">{vectorTrace.icon}</div>
+              </div>
+            )}
             {plots.map((p) => {
               const eff = sumEffects(p);
               const isDiagnosed = eff.hasDiagnosis;
@@ -2270,6 +2339,10 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
+
 
 
 
