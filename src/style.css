@@ -198,3 +198,31 @@ body {
   }
 }
 
+
+.weather-forecast-panel {
+  position: fixed;
+  right: 14px;
+  top: 14px;
+  z-index: 1001;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #1f2933;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(6px);
+}
+
+@media (max-width: 700px) {
+  .weather-forecast-panel {
+    right: 8px;
+    top: 8px;
+    font-size: 11px;
+    padding: 7px 9px;
+    border-radius: 12px;
+  }
+}
+

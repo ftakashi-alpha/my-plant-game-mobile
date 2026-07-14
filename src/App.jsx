@@ -465,6 +465,47 @@ function sumEffects(plot) {
   };
 }
 
+
+function weatherFromKey(key) {
+  if (key === "rain") {
+    return { icon: "🌧️", name: "長雨", diseaseBonus: 0.045, vectorBonus: 0, text: "水はね・濡れ時間により病原菌が広がりやすい状態です。" };
+  }
+
+  if (key === "wind") {
+    return { icon: "🌬️", name: "強風", diseaseBonus: 0.045, vectorBonus: 0.015, text: "風で病原菌や媒介虫が移動しやすい状態です。" };
+  }
+
+  if (key === "hot") {
+    return { icon: "☀️", name: "高温乾燥", diseaseBonus: 0, vectorBonus: 0.06, text: "媒介虫が増えやすく、ウイルス病リスクが高まりやすい状態です。" };
+  }
+
+  return { icon: "⛅", name: "平常", diseaseBonus: 0, vectorBonus: 0, text: "標準的な感染リスクです。" };
+}
+
+function createForecast() {
+  const rain = 15 + Math.round(Math.random() * 35);
+  const wind = 10 + Math.round(Math.random() * 25);
+  const hot = 5 + Math.round(Math.random() * 20);
+  const normal = Math.max(10, 100 - rain - wind - hot);
+  const total = rain + wind + hot + normal;
+
+  return {
+    rain: Math.round((rain / total) * 100),
+    wind: Math.round((wind / total) * 100),
+    hot: Math.round((hot / total) * 100),
+    normal: Math.round((normal / total) * 100),
+  };
+}
+
+function rollWeather(forecast) {
+  const r = Math.random() * 100;
+
+  if (r < forecast.rain) return "rain";
+  if (r < forecast.rain + forecast.wind) return "wind";
+  if (r < forecast.rain + forecast.wind + forecast.hot) return "hot";
+  return "normal";
+}
+
 export default function App() {
   const [difficultyKey, setDifficultyKey] = useState("normal");
   const [cropKey, setCropKey] = useState("tomato");
@@ -488,6 +529,9 @@ export default function App() {
   const [showRain, setShowRain] = useState(false);
   const [showWind, setShowWind] = useState(false);
   const [showVectorFly, setShowVectorFly] = useState(false);
+  const [forecast, setForecast] = useState(createForecast);
+  const [nextWeatherKey, setNextWeatherKey] = useState(() => rollWeather(forecast));
+  const [currentWeather, setCurrentWeather] = useState(() => weatherFromKey("normal"));
   const [vectorFlyIcon, setVectorFlyIcon] = useState("🐛");
   const [toolKey, setToolKey] = useState("monitor");
   const [turn, setTurn] = useState(1);
@@ -513,7 +557,7 @@ export default function App() {
 
   const crop = cropModes[cropKey];
   const mode = diseaseModes[modeKey];
-  const weather = weatherInfo(turn);
+  const weather = currentWeather;
   const tool = tools[toolKey];
 
   const hoveredPlot = hoveredId === null ? null : plots.find((p) => p.id === hoveredId) || null;
@@ -1011,7 +1055,11 @@ setPlots((prev) =>
   function nextTurn() {
     if (gameOver) return;
 
-    const newWeather = weatherInfo(turn + 1);
+    const newWeather = weatherFromKey(nextWeatherKey);
+    setCurrentWeather(newWeather);
+    const nextForecast = createForecast();
+    setForecast(nextForecast);
+    setNextWeatherKey(rollWeather(nextForecast));
 	
 if (newWeather.name === "長雨") {
   setShowRain(true);
@@ -1356,6 +1404,8 @@ if (newWeather.name === "強風") {
       ? "高収量とIPMを両立できています。"
       : "";
 
+
+  const nextWeatherPreview = weatherFromKey(nextWeatherKey);
   return (
     <div
   className={"mobile-tab-" + mobileTab + (showWind ? " wind-shake" : "")}
@@ -1363,6 +1413,15 @@ if (newWeather.name === "強風") {
 >
 
       {showRain && <div className="weather-rain" />}
+      <div className="weather-forecast-panel">
+        <div><b>📡 天候情報</b></div>
+        <div><b>現在の天候：{currentWeather.icon}{currentWeather.name}</b></div>
+        <div><b>次ターン天候：{nextWeatherPreview.icon}{nextWeatherPreview.name}</b></div>
+        <div style={{ marginTop: 4 }}>🌧️ 長雨 {forecast.rain}%</div>
+        <div>🌬️ 強風 {forecast.wind}%</div>
+        <div>☀️ 高温乾燥 {forecast.hot}%</div>
+        <div>⛅ 平常 {forecast.normal}%</div>
+      </div>
       {showVectorFly && <div className="vector-fly">{vectorFlyIcon}</div>}
       {React.createElement("style", null, `
         /* mobile-bottom-tabs-safe-css */
@@ -2211,6 +2270,15 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
+
+
+
+
+
+
+
 
 
 
