@@ -1508,7 +1508,12 @@ if (newWeather.name === "強風") {
         <div>⛅ 平常 {forecast.normal}%</div>
       </div>
 	  
-	  <div className="tool-info-panel">
+	  <div
+        className={
+          "tool-info-panel " +
+          (interactionMode === "apply" ? "tool-info-apply" : "tool-info-inspect")
+        }
+      >
         <div><b>🛠️ 操作情報</b></div>
         <div><b>選択中：</b>{tool.mark} {tool.name}</div>
         <div><b>状態：</b>{toolMode}</div>
@@ -2377,6 +2382,7 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
 
 
 
