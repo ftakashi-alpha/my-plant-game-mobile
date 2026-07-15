@@ -1473,6 +1473,11 @@ if (newWeather.name === "強風") {
 
   const nextWeatherPreview = weatherFromKey(nextWeatherKey);
 
+  const toolMode =
+    interactionMode === "apply"
+      ? "防除実施モード"
+      : "情報確認モード";
+
   const vectorTraceFrom = vectorTrace
     ? getPlotCenterPercent(vectorTrace.fromId, plots.length)
     : null;
@@ -1502,6 +1507,14 @@ if (newWeather.name === "強風") {
         <div>☀️ 高温乾燥 {forecast.hot}%</div>
         <div>⛅ 平常 {forecast.normal}%</div>
       </div>
+	  
+	  <div className="tool-info-panel">
+        <div><b>🛠️ 操作情報</b></div>
+        <div><b>選択中：</b>{tool.mark} {tool.name}</div>
+        <div><b>状態：</b>{toolMode}</div>
+        <div><b>コスト：</b>{tool.cost}</div>
+      </div>
+	  
       {showVectorFly && <div className="vector-fly">{vectorFlyIcon}</div>}
       {React.createElement("style", null, `
         /* mobile-bottom-tabs-safe-css */
@@ -2364,6 +2377,8 @@ const styles = {
     paddingLeft: 20,
   },
 };
+
+
 
 
 

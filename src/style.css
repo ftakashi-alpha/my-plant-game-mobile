@@ -418,4 +418,33 @@ body {
     text-align: center;
   }
 }
+.tool-info-panel {
+  position: fixed;
+  right: 14px;
+  top: 185px;
+  z-index: 1001;
 
+  width: 220px;
+
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(15,23,42,0.16);
+  border-radius: 14px;
+
+  padding: 10px 12px;
+
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1f2933;
+
+  box-shadow: 0 8px 24px rgba(15,23,42,0.16);
+  backdrop-filter: blur(6px);
+}
+
+@media (max-width: 700px) {
+  .tool-info-panel {
+    right: 8px;
+    top: 170px;
+    width: 180px;
+    font-size: 11px;
+  }
+}
